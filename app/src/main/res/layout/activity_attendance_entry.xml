@@ -1,0 +1,197 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F0F4F8"
+    android:padding="16dp">
+
+    <!-- כותרת -->
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Time Mark"
+        android:textSize="28sp"
+        android:textColor="#0A3E7B"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp" />
+
+    <!-- שם משתמש -->
+    <TextView
+        android:id="@+id/userName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:layout_marginTop="16dp"
+        android:text="שלום מאי"
+        android:textSize="22sp"
+        android:textColor="#0A3E7B"
+        android:gravity="center" />
+
+    <!-- כניסה אחרונה -->
+    <TextView
+        android:id="@+id/lastEntry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/userName"
+        android:layout_marginTop="12dp"
+        android:text="כניסה אחרונה: --"
+        android:textSize="16sp"
+        android:textColor="#0A3E7B"
+        android:gravity="center" />
+
+    <!-- כפתור אזור אישי -->
+    <Button
+        android:id="@+id/personalAreaButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lastEntry"
+        android:layout_marginTop="24dp"
+        android:text="אזור אישי"
+        android:textColor="#0A3E7B"
+        android:textSize="18sp"
+        android:padding="12dp"
+        android:background="@drawable/rounded_button_white" />
+
+    <Button
+        android:id="@+id/addCommentButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/personalAreaButton"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"
+        android:text="הוספת הערה"
+        android:textColor="#0A3E7B"
+        android:background="@drawable/rounded_button_white"
+        android:textSize="16sp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"/>
+
+
+
+    <!-- כפתורי דיווח -->
+    <LinearLayout
+        android:id="@+id/buttonsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/reportDate"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="16dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/reportExitButton"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/logout_circle"
+                android:src="@drawable/logout"
+                android:scaleType="centerInside"
+                android:layout_marginBottom="4dp"
+                app:tint="#B71C1C" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="דיווח יציאה"
+                android:textColor="#B71C1C"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/reportEntryButton"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/logout_circle"
+                android:src="@drawable/enter"
+                android:scaleType="centerInside"
+                android:layout_marginBottom="4dp"
+                app:tint="#009688" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="דיווח כניסה"
+                android:textColor="#009688"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- שעה נוכחית -->
+    <TextView
+        android:id="@+id/currentTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/addCommentButton"
+        android:layout_marginTop="32dp"
+        android:text="--:--:--"
+        android:textSize="28sp"
+        android:textColor="#009688"
+        android:gravity="center" />
+
+    <!-- תאריך דיווח -->
+    <TextView
+        android:id="@+id/reportDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/currentTime"
+        android:layout_marginTop="12dp"
+        android:text="--/--/----"
+        android:textSize="16sp"
+        android:textColor="#607D8B"
+        android:gravity="center" />
+
+    <!-- כפתור התנתקות – מוצמד לתחתית -->
+
+    <Button
+        android:id="@+id/serviceCallButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/logoutButton"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="117dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/rounded_button_white"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="טופס קריאת שירות"
+        android:textColor="#0A3E7B"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/logoutButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="147dp"
+        android:layout_marginBottom="23dp"
+        android:background="@drawable/rounded_button_white"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="התנתקות"
+        android:textAllCaps="false"
+        android:textColor="#B71C1C"
+        android:textSize="14sp" />
+</RelativeLayout>

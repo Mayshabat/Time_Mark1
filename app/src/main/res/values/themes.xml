@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- res/values/themes.xml -->
+    <style name="Theme.EndProject" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#E3F2FD</item> <!-- רקע בהיר -->
+        <item name="colorOnPrimary">#0A3E7B</item> <!-- טקסט -->
+        <item name="android:windowBackground">#E3F2FD</item>
+    </style>
+
+
+</resources>

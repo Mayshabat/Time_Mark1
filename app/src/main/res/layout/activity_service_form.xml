@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#E3F2FD">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="טופס קריאת שירות"
+            android:textSize="24sp"
+            android:textColor="#0D47A1"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="8dp" />
+
+        <!-- סוג קריאה -->
+        <RadioGroup
+            android:id="@+id/requestTypeGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <RadioButton
+                android:id="@+id/maintenanceRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="אחזקה" />
+
+            <RadioButton
+                android:id="@+id/faultRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="תקלה" />
+
+            <RadioButton
+                android:id="@+id/serviceContractRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="חוזה שירות" />
+        </RadioGroup>
+
+        <!-- שם עובד -->
+        <EditText
+            android:id="@+id/employeeNameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="שם עובד"
+            android:enabled="false"
+            android:focusable="false" />
+
+        <!-- תאריך אוטומטי -->
+        <EditText
+            android:id="@+id/autoDateEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="תאריך היום"
+            android:enabled="false"
+            android:focusable="false" />
+
+        <!-- שם לקוח -->
+        <EditText
+            android:id="@+id/clientNameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="שם לקוח" />
+
+        <!-- סוג מכשיר -->
+        <EditText
+            android:id="@+id/deviceTypeEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="סוג מכשיר" />
+
+        <!-- תיאור מוצר -->
+        <EditText
+            android:id="@+id/productDescEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="תיאור מוצר" />
+
+        <!-- מה נעשה בשטח -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="מה נעשה בשטח"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp" />
+
+        <EditText
+            android:id="@+id/treatmentDescEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="מהות הטיפול" />
+
+        <!-- תאריך טיפול -->
+        <EditText
+            android:id="@+id/treatmentDateEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="תאריך טיפול" />
+
+        <!-- שעת התחלה -->
+        <EditText
+            android:id="@+id/startTimeEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="שעת התחלה" />
+
+        <!-- שעת סיום -->
+        <EditText
+            android:id="@+id/endTimeEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="שעת סיום" />
+
+        <!-- שעות נסיעה -->
+        <EditText
+            android:id="@+id/travelHoursEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="שעות נסיעה" />
+
+        <!-- טיפול חוזר -->
+        <CheckBox
+            android:id="@+id/repeatTreatmentCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="טיפול חוזר" />
+
+        <!-- שם מאשר -->
+        <EditText
+            android:id="@+id/approverNameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="שם המאשר" />
+
+<!--        &lt;!&ndash; כפתור לחתימה דיגיטלית &ndash;&gt;-->
+<!--        <Button-->
+<!--            android:id="@+id/signButton"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="חתימה דיגיטלית"-->
+<!--            android:layout_marginTop="12dp" />-->
+
+        <!-- כפתור PDF -->
+        <Button
+            android:id="@+id/pdfButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="שמירה כ-PDF"
+            android:layout_marginTop="8dp" />
+
+        <!-- כפתור חזרה -->
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="חזרה"
+            android:layout_marginTop="8dp"
+            android:textColor="#B71C1C" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
