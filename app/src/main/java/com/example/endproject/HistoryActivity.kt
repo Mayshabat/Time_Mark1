@@ -167,17 +167,64 @@ class HistoryActivity : AppCompatActivity() {
     /**
      * טוען את רשימת דוחות ה־PDF של המנהלים ומציגם ב־ListView
      */
+//    private fun loadManagerReports() {
+//        val listView = findViewById<ListView>(R.id.managerReportsListView)
+//        val dbRef = FirebaseDatabase.getInstance().getReference("pdfForms")
+//
+//        dbRef.orderByChild("type").equalTo("manager_report")
+//            .addListenerForSingleValueEvent(object : ValueEventListener {
+//                override fun onDataChange(snapshot: DataSnapshot) {
+//                    val urls = mutableListOf<Pair<String, String>>()
+//                    for (formSnap in snapshot.children) {
+//                        val url = formSnap.child("url").getValue(String::class.java)
+//                        if (!url.isNullOrEmpty()) {
+//                            val name = "דו\"ח מנהל - ${formSnap.key?.takeLast(6)}"
+//                            urls.add(Pair(name, url))
+//                        }
+//                    }
+//
+//                    if (urls.isEmpty()) {
+//                        listView.adapter = ArrayAdapter(this@HistoryActivity , android.R.layout.simple_list_item_1, listOf("אין דוחות זמינים"))
+//                        listView.setOnItemClickListener(null)
+//                    } else {
+//                        val names = urls.map { it.first }
+//                        val adapter = ArrayAdapter(this@HistoryActivity , android.R.layout.simple_list_item_1, names)
+//                        listView.adapter = adapter
+//
+//                        listView.setOnItemClickListener { _, _, position, _ ->
+//                            val uri = Uri.parse(urls[position].second)
+//                            val intent = Intent(Intent.ACTION_VIEW).apply {
+//                                setDataAndType(uri, "application/pdf")
+//                                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NO_HISTORY
+//                            }
+//
+//                            if (intent.resolveActivity(packageManager) != null) {
+//                                startActivity(intent)
+//                            } else {
+//                                Toast.makeText(this@HistoryActivity , "לא נמצאה אפליקציה להצגת PDF", Toast.LENGTH_SHORT).show()
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                override fun onCancelled(error: DatabaseError) {}
+//            })
+//    }
     private fun loadManagerReports() {
         val listView = findViewById<ListView>(R.id.managerReportsListView)
         val dbRef = FirebaseDatabase.getInstance().getReference("pdfForms")
+
+        val currentUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         dbRef.orderByChild("type").equalTo("manager_report")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val urls = mutableListOf<Pair<String, String>>()
                     for (formSnap in snapshot.children) {
+                        val uploader = formSnap.child("uploader").getValue(String::class.java)
                         val url = formSnap.child("url").getValue(String::class.java)
-                        if (!url.isNullOrEmpty()) {
+
+                        if (uploader == currentUid && !url.isNullOrEmpty()) {
                             val name = "דו\"ח מנהל - ${formSnap.key?.takeLast(6)}"
                             urls.add(Pair(name, url))
                         }
@@ -210,6 +257,7 @@ class HistoryActivity : AppCompatActivity() {
                 override fun onCancelled(error: DatabaseError) {}
             })
     }
+
 
     /**
      * מחשב את משך הזמן בדקות בין שעת התחלה לסיום בפורמט "HH:mm"
