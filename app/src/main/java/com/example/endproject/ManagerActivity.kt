@@ -360,23 +360,23 @@ class ManagerActivity : AppCompatActivity() {
 
             document.close()
             openPdf(file)
+            val selectedName = employeeSpinner.selectedItem?.toString() ?: return
+            val employeeUid = employeeMap[selectedName] ?: return
 
-// 🔄 שמירת קובץ PDF של המנהל ל־Firebase Storage
-            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
             val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference
-            val pdfRef = storageRef.child("manager_reports/$uid/$fileName")
+            val pdfRef = storageRef.child("manager_reports/$employeeUid/$fileName")
 
             pdfRef.putFile(Uri.fromFile(file))
                 .addOnSuccessListener {
                     Toast.makeText(this, "קובץ המנהל נשמר ב־Firebase בהצלחה", Toast.LENGTH_SHORT).show()
 
-                    // שמירה ל־Realtime Database (אם רוצים להציג ברשימה)
+                    // שמירה ל־Realtime Database
                     pdfRef.downloadUrl.addOnSuccessListener { uri ->
                         val dbRef = FirebaseDatabase.getInstance().getReference("pdfForms")
                         val formId = dbRef.push().key ?: return@addOnSuccessListener
                         dbRef.child(formId).setValue(mapOf(
                             "url" to uri.toString(),
-                            "uploader" to uid,
+                            "uploader" to employeeUid, // ✅ זה מה שחשוב!
                             "type" to "manager_report",
                             "timestamp" to System.currentTimeMillis()
                         ))
@@ -391,6 +391,36 @@ class ManagerActivity : AppCompatActivity() {
             Toast.makeText(this, "שגיאה ביצירת קובץ PDF", Toast.LENGTH_SHORT).show()
         }
     }
+// 🔄 שמירת קובץ PDF של המנהל ל־Firebase Storage
+//            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+//            val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference
+//            val pdfRef = storageRef.child("manager_reports/$uid/$fileName")
+//
+//            pdfRef.putFile(Uri.fromFile(file))
+//                .addOnSuccessListener {
+//                    Toast.makeText(this, "קובץ המנהל נשמר ב־Firebase בהצלחה", Toast.LENGTH_SHORT).show()
+//
+//                    // שמירה ל־Realtime Database (אם רוצים להציג ברשימה)
+//                    pdfRef.downloadUrl.addOnSuccessListener { uri ->
+//                        val dbRef = FirebaseDatabase.getInstance().getReference("pdfForms")
+//                        val formId = dbRef.push().key ?: return@addOnSuccessListener
+//                        dbRef.child(formId).setValue(mapOf(
+//                            "url" to uri.toString(),
+//                            "uploader" to uid,
+//                            "type" to "manager_report",
+//                            "timestamp" to System.currentTimeMillis()
+//                        ))
+//                    }
+//                }
+//                .addOnFailureListener { e ->
+//                    Toast.makeText(this, "שגיאה בהעלאה ל־Firebase: ${e.message}", Toast.LENGTH_SHORT).show()
+//                }
+//
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            Toast.makeText(this, "שגיאה ביצירת קובץ PDF", Toast.LENGTH_SHORT).show()
+//        }
+//    }
 
 
     private fun openPdf(file: File) {
