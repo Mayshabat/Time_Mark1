@@ -50,9 +50,8 @@ class HistoryActivity : AppCompatActivity() {
         loadManagerReports() // טוען דוחות שהועלו ע"י מנהלים
     }
 
-    /**
-     * אתחול הספינרים להצגת חודשים ושנים לבחירה
-     */
+
+    // אתחול הספינרים להצגת חודשים ושנים לבחירה
     private fun initSpinners() {
         val calendar = Calendar.getInstance()
         val defaultYear = calendar.get(Calendar.YEAR)
@@ -164,58 +163,16 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * טוען את רשימת דוחות ה־PDF של המנהלים ומציגם ב־ListView
-     */
-//    private fun loadManagerReports() {
-//        val listView = findViewById<ListView>(R.id.managerReportsListView)
-//        val dbRef = FirebaseDatabase.getInstance().getReference("pdfForms")
-//
-//        dbRef.orderByChild("type").equalTo("manager_report")
-//            .addListenerForSingleValueEvent(object : ValueEventListener {
-//                override fun onDataChange(snapshot: DataSnapshot) {
-//                    val urls = mutableListOf<Pair<String, String>>()
-//                    for (formSnap in snapshot.children) {
-//                        val url = formSnap.child("url").getValue(String::class.java)
-//                        if (!url.isNullOrEmpty()) {
-//                            val name = "דו\"ח מנהל - ${formSnap.key?.takeLast(6)}"
-//                            urls.add(Pair(name, url))
-//                        }
-//                    }
-//
-//                    if (urls.isEmpty()) {
-//                        listView.adapter = ArrayAdapter(this@HistoryActivity , android.R.layout.simple_list_item_1, listOf("אין דוחות זמינים"))
-//                        listView.setOnItemClickListener(null)
-//                    } else {
-//                        val names = urls.map { it.first }
-//                        val adapter = ArrayAdapter(this@HistoryActivity , android.R.layout.simple_list_item_1, names)
-//                        listView.adapter = adapter
-//
-//                        listView.setOnItemClickListener { _, _, position, _ ->
-//                            val uri = Uri.parse(urls[position].second)
-//                            val intent = Intent(Intent.ACTION_VIEW).apply {
-//                                setDataAndType(uri, "application/pdf")
-//                                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NO_HISTORY
-//                            }
-//
-//                            if (intent.resolveActivity(packageManager) != null) {
-//                                startActivity(intent)
-//                            } else {
-//                                Toast.makeText(this@HistoryActivity , "לא נמצאה אפליקציה להצגת PDF", Toast.LENGTH_SHORT).show()
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                override fun onCancelled(error: DatabaseError) {}
-//            })
-//    }
+
+//   טוען את רשימת דוחות ה־PDF של המנהלים ומציגם ב־ListView
     private fun loadManagerReports() {
         val listView = findViewById<ListView>(R.id.managerReportsListView)
+    // מפנה לנתיב "pdfForms" ב־Firebase Realtime Database
         val dbRef = FirebaseDatabase.getInstance().getReference("pdfForms")
-
+// לוקח את ה־UID של המשתמש הנוכחי (אם אין משתמש מחובר – יוצא מהפונקציה)
         val currentUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
+    // שואל את Firebase את כל הרשומות מהסוג "manager_report"
         dbRef.orderByChild("type").equalTo("manager_report")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -225,26 +182,29 @@ class HistoryActivity : AppCompatActivity() {
                         val url = formSnap.child("url").getValue(String::class.java)
 
                         if (uploader == currentUid && !url.isNullOrEmpty()) {
-                            val name = "דו\"ח מנהל - ${formSnap.key?.takeLast(6)}"
+                            val name = "דוח מנהל - ${formSnap.key?.takeLast(6)}"
                             urls.add(Pair(name, url))
                         }
                     }
-
+                    // אם אין דוחות מתאימים
                     if (urls.isEmpty()) {
                         listView.adapter = ArrayAdapter(this@HistoryActivity , android.R.layout.simple_list_item_1, listOf("אין דוחות זמינים"))
                         listView.setOnItemClickListener(null)
                     } else {
+                        // ממיר את הרשימה רק לשמות התצוגה
                         val names = urls.map { it.first }
+                        // יוצר Adapter שמציג את השמות ברשימה
                         val adapter = ArrayAdapter(this@HistoryActivity , android.R.layout.simple_list_item_1, names)
                         listView.adapter = adapter
 
+                        // פעולה שמתרחשת בלחיצה על פריט ברשימה
                         listView.setOnItemClickListener { _, _, position, _ ->
                             val uri = Uri.parse(urls[position].second)
                             val intent = Intent(Intent.ACTION_VIEW).apply {
                                 setDataAndType(uri, "application/pdf")
                                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NO_HISTORY
                             }
-
+                            // אם יש אפליקציה שיכולה לפתוח PDF – מפעיל אותה
                             if (intent.resolveActivity(packageManager) != null) {
                                 startActivity(intent)
                             } else {

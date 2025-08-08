@@ -1,6 +1,6 @@
 package com.example.endproject
 
-// ייבוא ספריות נחוצות לעבודה עם מיקום, Firebase, תאריך ושעון
+
 import androidx.core.app.ActivityCompat
 import android.content.pm.PackageManager
 import android.location.Location
@@ -9,7 +9,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -20,34 +19,35 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    // הגדרת כל הרכיבים שמוצגים במסך הראשי של האפליקציה
-    private lateinit var userName: TextView
-    private lateinit var lastEntry: TextView
-    private lateinit var currentTime: TextView
-    private lateinit var reportEntryButton: ImageButton
-    private lateinit var reportExitButton: ImageButton
-    private lateinit var personalAreaButton: Button
-    private lateinit var addCommentButton: Button
-    private lateinit var serviceCallButton: Button
-    private lateinit var uid: String
+    // --- משתנים של רכיבי ה-UI במסך הראשי ---
+    private lateinit var userName: TextView        // מציג את שם המשתמש
+    private lateinit var lastEntry: TextView       // מציג את הכניסה/יציאה האחרונה
+    private lateinit var currentTime: TextView     // מציג שעון חי
+    private lateinit var reportEntryButton: ImageButton // כפתור דיווח כניסה
+    private lateinit var reportExitButton: ImageButton  // כפתור דיווח יציאה
+    private lateinit var personalAreaButton: Button     // כפתור מעבר לאזור האישי
+    private lateinit var addCommentButton: Button       // כפתור הוספת הערה
+    private lateinit var serviceCallButton: Button      // כפתור קריאת שירות
+    private lateinit var uid: String                    // מזהה המשתמש המחובר
 
-    // רכיבי מיקום וחיבור למסד הנתונים
+    // --- משתנים לעבודה עם מיקום ומסד הנתונים ---
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var database: DatabaseReference
 
-    // הגדרות עבור שעון ותאריך
-    private val handler = Handler(Looper.getMainLooper())
-    private val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-    private val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+    // --- הגדרות לשעון ותאריך ---
+    private val handler = Handler(Looper.getMainLooper()) // רץ כל שנייה לעדכון השעון
+    private val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault()) // פורמט שעה
+    private val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()) // פורמט תאריך
 
+    // --- מתבצע בעת טעינת המסך ---
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_attendance_entry)
+        setContentView(R.layout.activity_attendance_entry) // קושר את ה-XML
 
-        // קבלת מזהה המשתמש המחובר
+        // שמירת UID של המשתמש המחובר
         uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-        // קישור רכיבי המסך לפי מזהים
+        // קישור כל רכיבי ה-UI מה-XML למשתנים בקוד
         userName = findViewById(R.id.userName)
         lastEntry = findViewById(R.id.lastEntry)
         currentTime = findViewById(R.id.currentTime)
@@ -58,21 +58,26 @@ class MainActivity : AppCompatActivity() {
         serviceCallButton = findViewById(R.id.serviceCallButton)
         val logoutButton = findViewById<Button>(R.id.logoutButton)
 
-        // חיבור למיקום ול־Firebase
+        // התחברות ל-Firebase Database
         database = FirebaseDatabase.getInstance().reference
+
+        // אתחול רכיב המיקום
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        showUserName() // הצגת שם המשתמש
-        updateLiveClock() // עדכון שעון חי
-        findViewById<TextView>(R.id.reportDate).text = dateFormat.format(Date()) // תאריך היום
+        // קריאה לפונקציות עזר
+        showUserName() // מציג את שם המשתמש
+        updateLiveClock() // מפעיל שעון חי
+        findViewById<TextView>(R.id.reportDate).text = dateFormat.format(Date()) // מציג את תאריך היום
+        loadTodayStatus() // טוען את הסטטוס של הכניסה/יציאה להיום
 
-        loadTodayStatus() // בדיקת סטטוס נוכחות להיום
+        // --- פעולות בלחיצה על כפתורים ---
 
-        // לחיצה על כניסה/יציאה
+        // דיווח כניסה
         reportEntryButton.setOnClickListener { markAttendance("checkIn") }
+        // דיווח יציאה
         reportExitButton.setOnClickListener { markAttendance("checkOut") }
 
-        // מעבר למסך היסטוריית נוכחות
+        // מעבר להיסטוריית נוכחות (אזור אישי)
         personalAreaButton.setOnClickListener {
             val calendar = Calendar.getInstance()
             val currentYear = calendar.get(Calendar.YEAR).toString()
@@ -90,13 +95,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // מעבר למסך קריאת שירות
+        // מעבר למסך טופס קריאת שירות
         serviceCallButton.setOnClickListener {
             val intent = Intent(this, ServiceFormActivity::class.java)
             startActivity(intent)
         }
 
-        // לחצן יציאה – מתנתק ומחזיר למסך התחברות
+        // יציאה מהחשבון וחזרה למסך התחברות
         logoutButton.setOnClickListener {
             FirebaseAuth.getInstance().signOut()
             val intent = Intent(this, LoginActivity::class.java)
@@ -106,7 +111,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // הצגת שם המשתמש מה־Firebase
+    // --- מציג שם משתמש מה-Firebase ---
     private fun showUserName() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val userRef = FirebaseDatabase.getInstance().getReference("users").child(uid)
@@ -119,7 +124,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // הפעלת שעון חי שמתעדכן כל שנייה
+    // --- שעון שמתעדכן כל שנייה ---
     private fun updateLiveClock() {
         handler.post(object : Runnable {
             override fun run() {
@@ -129,13 +134,13 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    // יצירת מיקום במסד לפי התאריך של היום
+    // --- מחזיר את הנתיב ב-Firebase ליום הנוכחי ---
     private fun getTodayPath(): DatabaseReference {
         val today = dateFormat.format(Date())
         return database.child("attendance").child(uid).child(today)
     }
 
-    // דיווח כניסה או יציאה, עם בקשת מיקום
+    // --- דיווח כניסה/יציאה כולל בקשת מיקום ---
     private fun markAttendance(type: String) {
         if (uid.isBlank()) {
             Toast.makeText(this, "משתמש לא מחובר", Toast.LENGTH_SHORT).show()
@@ -146,6 +151,7 @@ class MainActivity : AppCompatActivity() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
+            // בקשת הרשאות
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(
@@ -157,7 +163,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // בקשת מיקום עדכני
+        // קבלת מיקום עדכני
         requestFreshLocation { location ->
             if (location == null) {
                 Toast.makeText(this, "לא ניתן לקבל מיקום נוכחי", Toast.LENGTH_SHORT).show()
@@ -167,7 +173,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // תגובה לבקשת הרשאות
+    // --- תגובה לבקשת הרשאות ---
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1001 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -177,7 +183,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // טוען סטטוס כניסה/יציאה של היום
+    // --- טעינת סטטוס כניסה/יציאה להיום ---
     private fun loadTodayStatus() {
         val todayPath = getTodayPath()
         todayPath.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -192,7 +198,7 @@ class MainActivity : AppCompatActivity() {
                     else -> "אין רישום להיום"
                 }
 
-                // אם כבר נרשם – מנטרל את הלחצן
+                // מנטרל את הכפתור אם כבר נרשם
                 reportEntryButton.isEnabled = checkInTime == null
                 reportExitButton.isEnabled = checkOutTime == null
             }
@@ -203,7 +209,7 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    // שמירה למסד עם מיקום ושעה
+    // --- שמירת דיווח נוכחות עם מיקום ---
     private fun handleAttendanceWithLocation(location: Location, type: String) {
         val fullDateTimeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         val now = fullDateTimeFormat.format(Date())
@@ -221,11 +227,13 @@ class MainActivity : AppCompatActivity() {
                     "מיקום לא ידוע"
                 }
 
+                // מפת הנתונים לשמירה
                 val attendanceMap = mapOf(
                     "time" to now,
                     "location" to addressText
                 )
 
+                // שמירה ב-Firebase
                 todayPath.child(type).setValue(attendanceMap)
                     .addOnSuccessListener {
                         Toast.makeText(this, "$type נרשמה בשעה $now", Toast.LENGTH_SHORT).show()
@@ -238,7 +246,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // בקשת מיקום עדכני מה-GPS
+    // --- בקשת מיקום עדכני ---
     private fun requestFreshLocation(onLocationReceived: (Location?) -> Unit) {
         val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 3000)
             .setMaxUpdates(1)
@@ -260,7 +268,7 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
     }
 
-    // עצירה של עדכון השעון כשעוזבים את האקטיביטי
+    // --- עצירת השעון כשעוזבים את המסך ---
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)

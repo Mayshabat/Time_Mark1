@@ -244,29 +244,6 @@ class ManagerActivity : AppCompatActivity() {
     }
 
 //        // טענת טפסי שירות מ-Firebase
-//    private fun loadUploadedServiceForms() {
-//        val listView = findViewById<ListView>(R.id.uploadedFilesListView)
-//        val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference.child("service_forms")
-//
-//        storageRef.listAll()
-//            .addOnSuccessListener { listResult ->
-//                val fileNames = listResult.items.map { it.name }
-//                val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, fileNames)
-//                listView.adapter = adapter
-//
-//                listView.setOnItemClickListener { _, _, position, _ ->
-//                    val selectedFileRef = listResult.items[position]
-//                    selectedFileRef.downloadUrl.addOnSuccessListener { uri ->
-//                        openPdfFromUrl(uri)
-//                    }.addOnFailureListener {
-//                        Toast.makeText(this, "שגיאה בטעינת הקובץ", Toast.LENGTH_SHORT).show()
-//                    }
-//                }
-//            }
-//            .addOnFailureListener {
-//                Toast.makeText(this, "שגיאה בטעינת רשימת הטפסים", Toast.LENGTH_SHORT).show()
-//            }
-//    }
 
 
     private fun exportRecordsToPdf() {
@@ -391,36 +368,7 @@ class ManagerActivity : AppCompatActivity() {
             Toast.makeText(this, "שגיאה ביצירת קובץ PDF", Toast.LENGTH_SHORT).show()
         }
     }
-// 🔄 שמירת קובץ PDF של המנהל ל־Firebase Storage
-//            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-//            val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference
-//            val pdfRef = storageRef.child("manager_reports/$uid/$fileName")
-//
-//            pdfRef.putFile(Uri.fromFile(file))
-//                .addOnSuccessListener {
-//                    Toast.makeText(this, "קובץ המנהל נשמר ב־Firebase בהצלחה", Toast.LENGTH_SHORT).show()
-//
-//                    // שמירה ל־Realtime Database (אם רוצים להציג ברשימה)
-//                    pdfRef.downloadUrl.addOnSuccessListener { uri ->
-//                        val dbRef = FirebaseDatabase.getInstance().getReference("pdfForms")
-//                        val formId = dbRef.push().key ?: return@addOnSuccessListener
-//                        dbRef.child(formId).setValue(mapOf(
-//                            "url" to uri.toString(),
-//                            "uploader" to uid,
-//                            "type" to "manager_report",
-//                            "timestamp" to System.currentTimeMillis()
-//                        ))
-//                    }
-//                }
-//                .addOnFailureListener { e ->
-//                    Toast.makeText(this, "שגיאה בהעלאה ל־Firebase: ${e.message}", Toast.LENGTH_SHORT).show()
-//                }
-//
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            Toast.makeText(this, "שגיאה ביצירת קובץ PDF", Toast.LENGTH_SHORT).show()
-//        }
-//    }
+
 
 
     private fun openPdf(file: File) {

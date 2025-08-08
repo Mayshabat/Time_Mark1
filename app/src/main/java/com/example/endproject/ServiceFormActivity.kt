@@ -20,7 +20,7 @@ import java.util.*
 
 class ServiceFormActivity : AppCompatActivity() {
 
-    // הכרזת כל שדות הטופס
+
     private lateinit var employeeNameText: EditText
     private lateinit var dateText: EditText
     private lateinit var customerNameEdit: EditText
@@ -41,7 +41,7 @@ class ServiceFormActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_service_form)
 
-        // קישור בין המשתנים לרכיבים במסך
+
         employeeNameText = findViewById(R.id.employeeNameEditText)
         dateText = findViewById(R.id.autoDateEditText)
         customerNameEdit = findViewById(R.id.clientNameEditText)
