@@ -18,9 +18,19 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * ServiceFormActivity
+ * מסך מילוי "טופס קריאת שירות":
+ * - מושך אוטומטית שם עובד ותאריך נוכחי.
+ * - מאפשר למלא פרטי לקוח/מכשיר/טיפול ועוד.
+ * - יוצר PDF מעוצב מקומי, מאפשר שיתוף, ומעלה ל-Firebase Storage בתיקייה service_forms/{uid}.
+ *
+ * הערה: לשיתוף/פתיחה של הקובץ עם FileProvider חייב להיות מוגדר provider ב-AndroidManifest
+ * וקובץ paths מתאים ב-res/xml. כאן אנחנו רק משתמשים בו.
+ */
 class ServiceFormActivity : AppCompatActivity() {
 
-
+    // --- קישורי UI לשדות הטופס ---
     private lateinit var employeeNameText: EditText
     private lateinit var dateText: EditText
     private lateinit var customerNameEdit: EditText
@@ -39,9 +49,9 @@ class ServiceFormActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_service_form)
+        setContentView(R.layout.activity_service_form) // טעינת תצוגת המסך
 
-
+        // --- חיבור רכיבי ה-UI מה-XML ---
         employeeNameText = findViewById(R.id.employeeNameEditText)
         dateText = findViewById(R.id.autoDateEditText)
         customerNameEdit = findViewById(R.id.clientNameEditText)
@@ -58,20 +68,23 @@ class ServiceFormActivity : AppCompatActivity() {
         backButton = findViewById(R.id.backButton)
         exportPdfButton = findViewById(R.id.pdfButton)
 
-        // מילוי אוטומטי של שם עובד ותאריך
+        // --- מילוי אוטומטי של שם עובד ותאריך נוכחי ---
         loadEmployeeName()
         loadCurrentDate()
 
-        // חזרה אחורה
+        // --- חזרה למסך הקודם ---
         backButton.setOnClickListener { finish() }
 
-        // יצירת PDF בלחיצה
+        // --- יצירת PDF ושיתוף/העלאה בלחיצה ---
         exportPdfButton.setOnClickListener {
             generateStyledPdf()
         }
     }
 
-    // שליפת שם העובד מה־Firebase (אם הוא לא התחבר דרך גוגל)
+    /**
+     * שליפת שם העובד מה-Realtime Database בענף users/{uid}/name.
+     * אם אין שם, מציבים "משתמש".
+     */
     private fun loadEmployeeName() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val userRef = FirebaseDatabase.getInstance().getReference("users").child(uid)
@@ -84,14 +97,22 @@ class ServiceFormActivity : AppCompatActivity() {
         }
     }
 
-    // הגדרת תאריך נוכחי בשדה תאריך
+    /**
+     * הצבת תאריך נוכחי בשדה התאריך בפורמט dd-MM-yyyy.
+     */
     private fun loadCurrentDate() {
         val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
         val currentDate = dateFormat.format(Date())
         dateText.setText(currentDate)
     }
 
-    // יצירת PDF מעוצב עם הנתונים ושמירה לפי UID
+    /**
+     * יצירת PDF מעוצב מקומי ממרכיבי הטופס, שיתוף הקובץ, והעלאה ל-Firebase Storage.
+     * הערות טכניות:
+     * - PdfDocument עובד בפיקסלים; כאן מוגדר דף A4 ב~72dpi: 595x842.
+     * - אנו מציירים טקסט מיושר לימין (Align.RIGHT) כדי להתאים לעברית.
+     * - שמירה בתיקיית האפליקציה getExternalFilesDir(DIRECTORY_DOCUMENTS) — לא דורש הרשאת כתיבה.
+     */
     private fun generateStyledPdf() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid == null) {
@@ -99,7 +120,7 @@ class ServiceFormActivity : AppCompatActivity() {
             return
         }
 
-        // קבלת סוג הקריאה מתוך ה-RadioGroup
+        // --- קריאת סוג הקריאה מתוך ה-RadioGroup ---
         val selectedType = when (requestTypeGroup.checkedRadioButtonId) {
             R.id.maintenanceRadio -> "אחזקה"
             R.id.faultRadio -> "תקלה"
@@ -107,12 +128,12 @@ class ServiceFormActivity : AppCompatActivity() {
             else -> "לא נבחר"
         }
 
-        // יצירת שם קובץ לפי סוג הקריאה והזמן
+        // --- יצירת שם קובץ ייחודי לפי סוג הקריאה והזמן הנוכחי ---
         val cleanType = selectedType.replace(" ", "_")
         val fileName = "${cleanType}_form_${System.currentTimeMillis()}.pdf"
         val file = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), fileName)
 
-        // יצירת המסמך
+        // --- בניית מסמך PDF חדש ודף בגודל A4 (595x842) ---
         val document = PdfDocument()
         val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
         val page = document.startPage(pageInfo)
@@ -120,7 +141,7 @@ class ServiceFormActivity : AppCompatActivity() {
         val paint = Paint()
         val pageWidth = pageInfo.pageWidth
 
-        // ציור מסגרת
+        // --- ציור מסגרת מסביב לדף ---
         val borderPaint = Paint().apply {
             style = Paint.Style.STROKE
             strokeWidth = 2f
@@ -129,25 +150,26 @@ class ServiceFormActivity : AppCompatActivity() {
         val rect = Rect(margin, margin, pageWidth - margin, pageInfo.pageHeight - margin)
         canvas.drawRect(rect, borderPaint)
 
-        // ציור טקסטים
-        var y = 60
+        // --- כותרת הדף ---
+        var y = 60 // קו Y התחלתי לציור טקסט
         paint.textSize = 18f
         paint.isFakeBoldText = true
-        paint.textAlign = Paint.Align.CENTER
+        paint.textAlign = Paint.Align.CENTER // כותרת באמצע העמוד
         canvas.drawText("טופס קריאת שירות", (pageWidth / 2).toFloat(), y.toFloat(), paint)
 
+        // --- הגדרות טקסט לשורות הפרטים ---
         paint.textSize = 14f
         paint.isFakeBoldText = false
-        paint.textAlign = Paint.Align.RIGHT
+        paint.textAlign = Paint.Align.RIGHT // מיושר לימין כדי להתאים לעברית
         y += 40
 
-        // פונקציה פנימית לציור שורה
+        // --- פונקציה פנימית לציור שורה אחת: "תווית: ערך" ---
         fun drawLine(label: String, value: String) {
             canvas.drawText("$label: $value", (pageWidth - 40).toFloat(), y.toFloat(), paint)
-            y += 24
+            y += 24 // ירידה שורה הבאה
         }
 
-        // כתיבת שדות הטופס ל-PDF
+        // --- כתיבת כל שדות הטופס לתוך ה-PDF ---
         drawLine("סוג קריאה", selectedType)
         drawLine("שם עובד", employeeNameText.text.toString())
         drawLine("תאריך", dateText.text.toString())
@@ -162,20 +184,22 @@ class ServiceFormActivity : AppCompatActivity() {
         drawLine("טיפול חוזר", if (repeatTreatmentCheck.isChecked) "כן" else "לא")
         drawLine("שם מאשר", approverNameEdit.text.toString())
 
+        // --- סיום הדף וכתיבה לקובץ ---
         document.finishPage(page)
         document.writeTo(FileOutputStream(file))
         document.close()
 
-        // שיתוף הקובץ
+        // --- שיתוף הקובץ החוצה (מייל/ווטסאפ וכו') ---
+        // הערה: דורש FileProvider מוגדר (authority = "$packageName.fileprovider").
         val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "application/pdf"
-            putExtra(Intent.EXTRA_STREAM, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            putExtra(Intent.EXTRA_STREAM, uri) // מצרפים את ה-URI של הקובץ
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) // מעניקים הרשאת קריאה לנמען
         }
         startActivity(Intent.createChooser(shareIntent, "שלח טופס שירות"))
 
-        // העלאת הקובץ ל-Firebase Storage תחת service_forms/<uid>/<שם קובץ>
+        // --- העלאת הקובץ ל-Firebase Storage בתיקייה service_forms/{uid}/{filename} ---
         val storageRef = FirebaseStorage.getInstance().reference
         val pdfRef = storageRef.child("service_forms/$uid/$fileName")
 
