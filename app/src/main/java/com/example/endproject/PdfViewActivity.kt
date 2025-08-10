@@ -11,11 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
 import com.example.endproject.adapters.FormsAdapter
 
-/**
- * PdfViewActivity:
- * מסך שמציג רשימת טפסי PDF (שם + קישור) מתוך Realtime Database בענף "pdfForms".
- * בלחיצה על פריט ברשימה נפתחת אפליקציה חיצונית לצפייה ב-PDF לפי ה-URL.
- */
 class PdfViewActivity : AppCompatActivity() {
 
     // RecyclerView להצגת הרשימה
@@ -24,7 +19,7 @@ class PdfViewActivity : AppCompatActivity() {
     private lateinit var adapter: FormsAdapter
 
     // רשימת הטפסים שתוצג: Pair<name, url>
-    private val formList = mutableListOf<Pair<String, String>>() // name to url
+    private val formList = mutableListOf<Pair<String, String>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,12 +40,7 @@ class PdfViewActivity : AppCompatActivity() {
         loadForms()
     }
 
-    /**
-     * טוען את רשימת הטפסים מ-Firebase Realtime Database תחת "pdfForms".
-     * לכל פריט מצופה שיהיו שדות: "name" (שם הקובץ להצגה) ו-"url" (קישור הציבורי לקובץ).
-     * הערה: אם במערכת שלך נשמרים רק url/uploader/type/timestamp — תוודאי שגם "name" נשמר,
-     * אחרת הרשימה תהיה ריקה (כאן אנחנו ממשיכים לפי הדרישה "לא לשנות קוד", רק מסבירים).
-     */
+    // טוען את רשימת הטפסים מ-Firebase Realtime Database תחת "pdfForms"
     private fun loadForms() {
         val ref = FirebaseDatabase.getInstance().getReference("pdfForms")
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -60,7 +50,7 @@ class PdfViewActivity : AppCompatActivity() {
                 // מעבר על כל הטפסים בענף
                 for (child in snapshot.children) {
                     val name = child.child("name").getValue(String::class.java) ?: continue // שם לתצוגה
-                    val url = child.child("url").getValue(String::class.java) ?: continue  // קישור להורדה/צפייה
+                    val url = child.child("url").getValue(String::class.java) ?: continue  //  קישור צפייה לקובץ
                     formList.add(name to url) // הוספת זוג (שם, קישור) לרשימה
                 }
 
@@ -69,16 +59,11 @@ class PdfViewActivity : AppCompatActivity() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // אפשר להוסיף כאן לוג/טוסט במקרה של שגיאה בקריאה מה-DB (השארתי ריק לפי הקוד המקורי)
             }
         })
     }
 
-    /**
-     * openPdfFromUrl:
-     * יוצר Intent לצפייה בקובץ PDF לפי URL.
-     * אם אין במכשיר אפליקציה שיודעת לטפל ב-PDF, נתפוס ActivityNotFoundException ונראה Toast.
-     */
+    //יוצר Intent לצפייה בקובץ PDF לפי URL.
     private fun openPdfFromUrl(url: String) {
         try {
             val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -87,7 +72,8 @@ class PdfViewActivity : AppCompatActivity() {
                 // FLAG_GRANT_READ_URI_PERMISSION: מתן הרשאת קריאה (למקרה של URI שמצריך הרשאה)
                 flags = Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_GRANT_READ_URI_PERMISSION
             }
-            startActivity(intent) // ניסיון לפתוח באפליקציית PDF קיימת במכשיר
+            // ניסיון לפתוח באפליקציית PDF קיימת במכשיר
+            startActivity(intent)
         } catch (e: ActivityNotFoundException) {
             // לא קיימת אפליקציה מתאימה לפתיחת PDF במכשיר
             Toast.makeText(this, "לא נמצאה אפליקציה לפתיחת קובץ PDF", Toast.LENGTH_SHORT).show()

@@ -2,8 +2,6 @@ package com.example.endproject
 
 import android.content.Intent
 import android.net.Uri
-
-
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
@@ -32,10 +30,8 @@ import com.itextpdf.text.Element
 import com.itextpdf.text.*
 import com.itextpdf.text.pdf.*
 
-
 class ManagerActivity : AppCompatActivity() {
 
-    // --- רכיבי UI ראשיים במסך המנהל ---
     private lateinit var greetingText: TextView
     private lateinit var currentDateTV: TextView
     private lateinit var currentTimeTV: TextView
@@ -47,7 +43,6 @@ class ManagerActivity : AppCompatActivity() {
     private lateinit var totalHoursTV: TextView
     private lateinit var exportButton: Button
 
-    // --- אובייקטים לעבודה שוטפת ---
     private val handler = Handler(Looper.getMainLooper()) // מציג שעון "חי" שמתעדכן כל שנייה
     private val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault()) // פורמט לשעה
     private val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()) // פורמט לתאריך
@@ -58,7 +53,7 @@ class ManagerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manager)
 
-        // --- קישור רכיבי UI מה־XML ---
+        //  קישור רכיבי UI מה־XML
         greetingText = findViewById(R.id.managerGreeting)
         currentDateTV = findViewById(R.id.currentDate)
         currentTimeTV = findViewById(R.id.currentTime)
@@ -71,7 +66,6 @@ class ManagerActivity : AppCompatActivity() {
         exportButton = findViewById(R.id.exportButton)
         recyclerView.layoutManager = LinearLayoutManager(this) // טבלת נוכחות כמחזור־רכיבים (RecyclerView)
 
-        // --- ברכות ותצוגת תאריך/שעה ---
         greetingText.text = "שלום מנהל"
         currentDateTV.text = dateFormat.format(Date())
         updateLiveClock()      // מתחיל עדכון השעון כל שנייה
@@ -79,7 +73,6 @@ class ManagerActivity : AppCompatActivity() {
         loadEmployeeList()     // טוען רשימת עובדים מה־Realtime Database
         setAutoLoadOnSelectionChange() // בכל שינוי עובד/חודש/שנה נטען מחדש את הנתונים
 
-        // --- חיווי פעולות ---
         exportButton.setOnClickListener {
             exportRecordsToPdf() // מייצא את רשומות הנוכחות האחרונות ל־PDF ומעלה ל־Firebase Storage + רשומה ב־Realtime DB
         }
@@ -94,7 +87,7 @@ class ManagerActivity : AppCompatActivity() {
         }
     }
 
-    // --- מציג שעון חי המתעדכן כל שנייה באמצעות Handler על ה־Main Looper ---
+    //מציג שעון חי המתעדכן כל שנייה באמצעות Handler על ה־Main Looper
     private fun updateLiveClock() {
         handler.post(object : Runnable {
             override fun run() {
@@ -104,7 +97,7 @@ class ManagerActivity : AppCompatActivity() {
         })
     }
 
-    // --- אתחול רשימות שנה/חודש: שנים אחרונות + כל חודשי השנה ---
+    //  אתחול רשימות שנה/חודש: שנים אחרונות + כל חודשי השנה
     private fun initSpinners() {
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
         val years = (currentYear - 5..currentYear).toList().reversed() // 6 שנים אחרונות, מהחדשה לישנה
@@ -113,10 +106,10 @@ class ManagerActivity : AppCompatActivity() {
         yearSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, years)
         monthSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, months)
         yearSpinner.setSelection(0) // כברירת מחדל: השנה הנוכחית (מופיעה ראשונה ברשימה ההפוכה)
-        monthSpinner.setSelection(Calendar.getInstance().get(Calendar.MONTH)) // החודש הנוכחי (0-מבוסס, לכן +1 בהמשך)
+        monthSpinner.setSelection(Calendar.getInstance().get(Calendar.MONTH)) // החודש הנוכחי
     }
 
-    // --- טוען רשימת עובדים מהענף "users" וממלא Spinner בשמות. במפה נשמר קשר שם->UID ---
+    //  טוען רשימת עובדים מהענף "users" וממלא Spinner בשמות. במפה נשמר קשר שם->UID
     private fun loadEmployeeList() {
         val ref = FirebaseDatabase.getInstance().getReference("users")
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -131,12 +124,11 @@ class ManagerActivity : AppCompatActivity() {
                 val adapter = ArrayAdapter(this@ManagerActivity, android.R.layout.simple_spinner_item, names)
                 employeeSpinner.adapter = adapter
             }
-
             override fun onCancelled(error: DatabaseError) {}
         })
     }
 
-    // --- בכל שינוי בחירה (עובד/חודש) נטען מחדש נתוני הנוכחות והטפסים ---
+    //  בכל שינוי בחירה (עובד/חודש) נטען מחדש נתוני הנוכחות והטפסים
     private fun setAutoLoadOnSelectionChange() {
         val selectionListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
@@ -147,15 +139,13 @@ class ManagerActivity : AppCompatActivity() {
                 loadEmployeeMonthlyAttendance(uid, selectedName, year, month) // נוכחות חודשית
                 loadEmployeeServiceForms(uid) // טפסי שירות שהעלה אותו עובד (מתיקיית service_forms/UID)
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
-
         employeeSpinner.onItemSelectedListener = selectionListener
         monthSpinner.onItemSelectedListener = selectionListener
     }
 
-    // --- טוען נוכחות לפי עובד/שנה/חודש מענף "attendance/{uid}" ומחשב שעות חודשיות ---
+    //  טוען נוכחות לפי עובד/שנה/חודש מענף "attendance/{uid}" ומחשב שעות חודשיות
     private fun loadEmployeeMonthlyAttendance(uid: String, name: String, year: Int, month: Int) {
         val ref = FirebaseDatabase.getInstance().getReference("attendance").child(uid)
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -172,7 +162,7 @@ class ManagerActivity : AppCompatActivity() {
                     val y = dateParts[2].toIntOrNull() ?: continue
                     if (m != month || y != year) continue // סינון לפי חודש/שנה שנבחרו
 
-                    // קריאת זמני כניסה/יציאה ומיקומים (אם קיימים)
+                    // קריאת זמני כניסה/יציאה ומיקומים
                     val checkInTime = daySnap.child("checkIn/time").getValue(String::class.java)
                     val checkOutTime = daySnap.child("checkOut/time").getValue(String::class.java)
                     val checkInLocation = daySnap.child("checkIn/location").getValue(String::class.java) ?: "-"
@@ -189,7 +179,7 @@ class ManagerActivity : AppCompatActivity() {
                             totalMinutes += diff.toInt()
                             durationMinutes = String.format("%02d:%02d", diff / 60, diff % 60) // פורמט HH:MM
                         } catch (e: Exception) {
-                            durationMinutes = "-" // אם יש בעיית פרסינג לא נשבור תצוגה
+                            durationMinutes = "-"
                         }
                     }
 
@@ -225,8 +215,7 @@ class ManagerActivity : AppCompatActivity() {
         })
     }
 
-    // --- טוען טפסי שירות של עובד מ־Firebase Storage בתיקייה service_forms/{uid} ומציג ב־ListView ---
-    // עדכהתי עכשיו
+    //  טוען טפסי שירות של עובד מ־Firebase Storage בתיקייה service_forms/{uid} ומציג ב־ListView
     private fun loadEmployeeServiceForms(uid: String) {
         val listView = findViewById<ListView>(R.id.uploadedFilesListView)
         val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference.child("service_forms/$uid")
@@ -259,10 +248,10 @@ class ManagerActivity : AppCompatActivity() {
             }
     }
 
-//        // טענת טפסי שירות מ-Firebase
 
 
-    // --- מייצא את הרשומות האחרונות ל־PDF בעברית (RTL) בעזרת iText, פותח את הקובץ, ואז מעלה ל־Storage ומעדכן ב־Realtime DB ---
+
+    // מייצא את הרשומות האחרונות ל־PDF בעברית (RTL) בעזרת iText, פותח את הקובץ, ואז מעלה ל־Storage ומעדכן ב־Realtime DB
     private fun exportRecordsToPdf() {
         if (lastLoadedRecords.isEmpty()) {
             Toast.makeText(this, "אין נתונים לייצוא", Toast.LENGTH_SHORT).show()
@@ -277,17 +266,17 @@ class ManagerActivity : AppCompatActivity() {
             PdfWriter.getInstance(document, FileOutputStream(file))
             document.open()
 
-            // --- תמיכה בעברית: טעינת פונט שיודע יוניקוד + הגדרת כיוון כתיבה בהמשך (RUN_DIRECTION_RTL) ---
+            // תמיכה בעברית: טעינת פונט שיודע יוניקוד + הגדרת כיוון כתיבה בהמשך (RUN_DIRECTION_RTL)
             val baseFont = BaseFont.createFont("assets/fonts/FreeSans.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED)
             val font = com.itextpdf.text.Font(baseFont, 12f)
 
-            // --- כותרת הדו"ח ---
+            // כותרת הדו"ח
             val employeeName = lastLoadedRecords.first().employeeName
             val calendar = Calendar.getInstance()
             val currentMonth = calendar.get(Calendar.MONTH) + 1
             val currentYear = calendar.get(Calendar.YEAR)
 
-            val titleText = "דו\"ח נוכחות חודש $currentMonth/$currentYear - $employeeName"
+            val titleText = "דוח נוכחות חודש $currentMonth/$currentYear - $employeeName"
             val titlePhrase = Phrase(titleText, font)
 
             val titleCell = PdfPCell(titlePhrase)
@@ -302,14 +291,14 @@ class ManagerActivity : AppCompatActivity() {
 
             document.add(titleTable)
 
-            // --- טבלת הנוכחות: כותרות + שורות ימים ---
+            // טבלת הנוכחות: כותרות + שורות ימים
             val table = PdfPTable(5)
             table.runDirection = PdfWriter.RUN_DIRECTION_RTL
             table.widthPercentage = 100f
             table.spacingBefore = 10f
             table.spacingAfter = 10f
 
-            val headers = listOf("תאריך", "כניסה", "יציאה", "סה\"כ", "הערה")
+            val headers = listOf("תאריך", "כניסה", "יציאה", "סהכ", "הערה")
             for (headerText in headers) {
                 val cell = PdfPCell(Phrase(headerText, font))
                 cell.setPadding(6f)
@@ -337,9 +326,9 @@ class ManagerActivity : AppCompatActivity() {
 
             document.add(table)
 
-            // --- סיכום שעות בתחתית הדו"ח (RTL, מיושר לימין) ---
+            //  סיכום שעות בתחתית הדו"ח (RTL, מיושר לימין)
             val totalTimeFormatted = String.format("%02d:%02d", totalMinutes / 60, totalMinutes % 60)
-            val totalText = "סה\"כ שעות החודש: $totalTimeFormatted"
+            val totalText = "סהכ שעות החודש: $totalTimeFormatted"
             val totalPhrase = Phrase(totalText, font)
 
             val totalCell = PdfPCell(totalPhrase)
@@ -357,10 +346,10 @@ class ManagerActivity : AppCompatActivity() {
 
             document.close() // סגירת ה־PDF (חשוב לפני פתיחה/העלאה)
 
-            // --- פתיחת הקובץ לצפייה במכשיר (אם יש אפליקציית PDF) ---
+            // פתיחת הקובץ לצפייה במכשיר (אם יש אפליקציית PDF)
             openPdf(file)
 
-            // --- העלאה ל־Firebase Storage בתיקייה manager_reports/{UID העובד} ---
+            //  העלאה ל־Firebase Storage בתיקייה manager_reports/{UID העובד}
             val selectedName = employeeSpinner.selectedItem?.toString() ?: return
             val employeeUid = employeeMap[selectedName] ?: return
 
@@ -371,14 +360,13 @@ class ManagerActivity : AppCompatActivity() {
                 .addOnSuccessListener {
                     Toast.makeText(this, "קובץ המנהל נשמר ב־Firebase בהצלחה", Toast.LENGTH_SHORT).show()
 
-                    // --- קבלת URL ושמירה ב־Realtime Database תחת "pdfForms" ---
-                    // שימי לב: כאן "uploader" = UID של העובד, כדי שהקובץ יופיע אצלו גם ברשימה לפי ההיגיון של האפליקציה
+                    //  קבלת URL ושמירה ב־Realtime Database תחת "pdfForms"
                     pdfRef.downloadUrl.addOnSuccessListener { uri ->
                         val dbRef = FirebaseDatabase.getInstance().getReference("pdfForms")
                         val formId = dbRef.push().key ?: return@addOnSuccessListener
                         dbRef.child(formId).setValue(mapOf(
                             "url" to uri.toString(),
-                            "uploader" to employeeUid, // ✅ זה מה שחשוב!
+                            "uploader" to employeeUid,
                             "type" to "manager_report",
                             "timestamp" to System.currentTimeMillis()
                         ))
@@ -394,7 +382,8 @@ class ManagerActivity : AppCompatActivity() {
         }
     }
 
-    // --- פתיחת PDF מקובץ מקומי באמצעות FileProvider (נדרש להגדיר provider ב־Manifest ו־paths ב־xml) ---
+
+    //  פתיחת PDF מקובץ מקומי באמצעות FileProvider (נדרש להגדיר provider ב־Manifest ו־paths ב־xml)
     private fun openPdf(file: File) {
         val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
         val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -409,14 +398,13 @@ class ManagerActivity : AppCompatActivity() {
         }
     }
 
-    // --- פתיחת PDF לפי URL (מתאים לקבצים מה־Storage עם הרשאת גישה מתאימה) ---
-    // openPdfFromUrl: פותח קובץ PDF לפי כתובת URL (Storage public URL)
+
+    //פותח קובץ PDF לפי כתובת URL
     private fun openPdfFromUrl(uri: Uri) {
         val intent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "application/pdf")
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NO_HISTORY
         }
-
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
         } else {
@@ -424,10 +412,10 @@ class ManagerActivity : AppCompatActivity() {
         }
     }
 
-    // --- ניקוי ה־Handler של השעון כדי למנוע דליפת זיכרון כאשר הפעילות נסגרת ---
-    // onDestroy: ניקוי ה-Handler של שעון חי כדי למנוע דליפת זיכרון
+
     override fun onDestroy() {
         super.onDestroy()
+        //ניקוי ה־Handler של השעון כדי למנוע דליפת זיכרון כאשר הפעילות נסגרת
         handler.removeCallbacksAndMessages(null)
     }
 }

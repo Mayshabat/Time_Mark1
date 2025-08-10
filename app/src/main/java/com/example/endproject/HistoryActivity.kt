@@ -15,10 +15,8 @@ import java.util.*
 import android.content.Intent
 import android.net.Uri
 
-/**
- * פעילות שמציגה היסטוריית נוכחות חודשית של עובד (כולל שעות ותגובות),
- * וכן דוחות PDF שהועלו ע״י מנהלים (אם קיימים)
- */
+
+//פעילות שמציגה היסטוריית נוכחות חודשית של עובד (כולל שעות ותגובות)
 class HistoryActivity : AppCompatActivity() {
 
     private lateinit var yearSpinner: Spinner
@@ -40,14 +38,14 @@ class HistoryActivity : AppCompatActivity() {
         totalHoursText = findViewById(R.id.totalMonthHours)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
-
-        initSpinners() // אתחול ספינרים של שנה וחודש
+        // אתחול ספינרים של שנה וחודש
+        initSpinners()
 
         findViewById<Button>(R.id.backButton).setOnClickListener {
             finish()
         }
-
-        loadManagerReports() // טוען דוחות שהועלו ע"י מנהלים
+        // טוען דוחות שהועלו ע"י מנהלים
+        loadManagerReports()
     }
 
 
@@ -81,10 +79,8 @@ class HistoryActivity : AppCompatActivity() {
         monthSpinner.onItemSelectedListener = listener
     }
 
-    /**
-     * טוען את רשומות הנוכחות מה-Database לפי שנה וחודש שנבחרו,
-     * כולל חישוב סך השעות החודשיות
-     */
+
+    //טוען את רשומות הנוכחות מה-Database לפי שנה וחודש שנבחרו כולל חישוב סך השעות החודשיות
     private fun loadData() {
         val selectedYear = yearSpinner.selectedItem.toString()
         val selectedMonth = monthSpinner.selectedItem.toString()
@@ -134,7 +130,7 @@ class HistoryActivity : AppCompatActivity() {
                 val totalText = if (totalMinutes > 0) {
                     val hours = totalMinutes / 60
                     val minutes = totalMinutes % 60
-                    String.format("סה\"כ שעות החודש: %02d:%02d", hours, minutes)
+                    String.format("סהכ שעות החודש: %02d:%02d", hours, minutes)
                 } else "לא נמצאו שעות פעילות"
 
                 totalHoursText.text = totalText
@@ -146,9 +142,8 @@ class HistoryActivity : AppCompatActivity() {
         })
     }
 
-    /**
-     * מחשב את משך הזמן בין check-in ל־check-out, בפורמט של שעות ודקות
-     */
+
+    //מחשב את משך הזמן בין check-in ל־check-out, בפורמט של שעות ודקות
     private fun calculateTotalHours(checkIn: String, checkOut: String): String {
         return try {
             val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
@@ -164,15 +159,15 @@ class HistoryActivity : AppCompatActivity() {
     }
 
 
-//   טוען את רשימת דוחות ה־PDF של המנהלים ומציגם ב־ListView
+    //   טוען את רשימת דוחות ה־PDF של המנהלים ומציגם ב־ListView
     private fun loadManagerReports() {
         val listView = findViewById<ListView>(R.id.managerReportsListView)
-    // מפנה לנתיב "pdfForms" ב־Firebase Realtime Database
+        // מפנה לנתיב "pdfForms" ב־Firebase Realtime Database
         val dbRef = FirebaseDatabase.getInstance().getReference("pdfForms")
-// לוקח את ה־UID של המשתמש הנוכחי (אם אין משתמש מחובר – יוצא מהפונקציה)
+        // לוקח את ה־UID של המשתמש הנוכחי (אם אין משתמש מחובר – יוצא מהפונקציה)
         val currentUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-    // שואל את Firebase את כל הרשומות מהסוג "manager_report"
+        // שואל את Firebase את כל הרשומות מהסוג "manager_report"
         dbRef.orderByChild("type").equalTo("manager_report")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -218,10 +213,7 @@ class HistoryActivity : AppCompatActivity() {
             })
     }
 
-
-    /**
-     * מחשב את משך הזמן בדקות בין שעת התחלה לסיום בפורמט "HH:mm"
-     */
+    //מחשב את משך הזמן בדקות בין שעת התחלה לסיום בפורמט "HH:mm"
     private fun calculateMinutes(start: String?, end: String?): Int {
         return try {
             val format = SimpleDateFormat("HH:mm", Locale.getDefault())

@@ -17,14 +17,14 @@ class ManagerAdapter(private val records: List<EmployeeDayRecord>) :
 
     // מחזיק תצוגה לכל שורה ברשימה (ViewHolder)
     class RecordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val nameTV: TextView = itemView.findViewById(R.id.item_name)                  // שם העובד
-        val dateTV: TextView = itemView.findViewById(R.id.item_date)                  // תאריך
-        val checkInTV: TextView = itemView.findViewById(R.id.item_check_in)           // שעת כניסה
-        val checkOutTV: TextView = itemView.findViewById(R.id.item_check_out)         // שעת יציאה
-        val hoursTV: TextView = itemView.findViewById(R.id.item_hours)                // סה"כ שעות
-        val checkInLocButton: ImageButton = itemView.findViewById(R.id.item_check_in_location_button) // כפתור מיקום כניסה
-        val checkOutLocButton: ImageButton = itemView.findViewById(R.id.item_check_out_location_button) // כפתור מיקום יציאה
-        val commentButton: ImageButton = itemView.findViewById(R.id.item_comment_button)               // כפתור הערה
+        val nameTV: TextView = itemView.findViewById(R.id.item_name)
+        val dateTV: TextView = itemView.findViewById(R.id.item_date)
+        val checkInTV: TextView = itemView.findViewById(R.id.item_check_in)
+        val checkOutTV: TextView = itemView.findViewById(R.id.item_check_out)
+        val hoursTV: TextView = itemView.findViewById(R.id.item_hours)
+        val checkInLocButton: ImageButton = itemView.findViewById(R.id.item_check_in_location_button)
+        val checkOutLocButton: ImageButton = itemView.findViewById(R.id.item_check_out_location_button)
+        val commentButton: ImageButton = itemView.findViewById(R.id.item_comment_button)
     }
 
     // יצירת ViewHolder חדש לפי תצוגת XML

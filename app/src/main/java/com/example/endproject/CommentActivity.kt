@@ -7,14 +7,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import java.text.SimpleDateFormat
 import java.util.*
-
-/**
- * פעילות להזנת הערות יומיות על ידי עובד.
- * מאפשרת בחירה של תאריך מתוך רשימת תאריכים זמינים (שבהם דווח checkIn), והוספת הערה לטבלה.
- */
 class CommentActivity : AppCompatActivity() {
 
-    // רכיבי UI
     private lateinit var daySpinner: Spinner
     private lateinit var monthSpinner: Spinner
     private lateinit var yearSpinner: Spinner
@@ -64,17 +58,15 @@ class CommentActivity : AppCompatActivity() {
                     Toast.makeText(this, "שגיאה בשמירת ההערה", Toast.LENGTH_SHORT).show()
                 }
         }
-
         // לחצן חזרה למסך הקודם
         backButton.setOnClickListener {
             finish()
         }
     }
 
-    /**
-     * טוען את רשימת התאריכים שהמשתמש דיווח עליהם (כלומר יש בהם checkIn)
-     * וממלא את הספינרים (יום, חודש, שנה) בהתאם
-     */
+
+    // טוען את רשימת התאריכים שהמשתמש דיווח עליהם (כלומר יש בהם checkIn)
+    //וממלא את הספינרים (יום, חודש, שנה) בהתאם
     private fun loadAvailableDates() {
         val calendar = Calendar.getInstance()
         val today = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(calendar.time)
@@ -99,7 +91,7 @@ class CommentActivity : AppCompatActivity() {
                     return
                 }
 
-                // ממיין את התאריכים לפי סדר יורד (מהחדש לישן)
+                // ממיין את התאריכים מהחדש לישן
                 validDates.sortByDescending {
                     SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(it)
                 }

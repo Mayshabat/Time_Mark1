@@ -1,6 +1,6 @@
 package com.example.endproject
 
-// יבוא של ספריות ואובייקטים נחוצים
+
 import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
